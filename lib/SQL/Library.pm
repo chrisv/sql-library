@@ -115,7 +115,7 @@ stored in INI-like files.
 
 =head1 VERSION
 
-This document refers to version 0.0.4 (unreleased) of SQL::Library.
+This document refers to version 0.0.4 of SQL::Library.
 
 =head1 SYNOPSIS
 

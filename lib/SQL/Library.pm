@@ -239,7 +239,7 @@ Doug Gorley E<lt>douggorley@shaw.caE<gt>
 
 =head1 CO-MAINTAINER
 
-Chris Vertonghen E<lt>chris@vertonghen.orgE<gt> (post-0.0.3)
+Chris Vertonghen E<lt>chrisv@cpan.orgE<gt> (post-0.0.3)
 
 =head1 COPYRIGHT & LICENSE
 

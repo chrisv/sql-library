@@ -1,7 +1,7 @@
 Revision history for Perl module SQL::Library
 
 0.0.4 (pre-release)
-    - Co-maintainer Chris Vertonghen <chris@vertonghen.org>
+    - Co-maintainer Chris Vertonghen <chrisv@cpan.org>
     - re-arrange & update pod (chrisv)
     - fixed: rt.cpan.org Bug #22796 for SQL-Library: Wrong version for
       ExtUtils::MakeMaker (thanks Serguei Trouchelle) (chrisv)

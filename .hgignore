@@ -3,6 +3,6 @@ syntax: glob
 *.bak
 *~
 desktop.ini
-bbpull.bat
-bbpush.bat
+bbpull.*
+bbpush.*
 

@@ -3,36 +3,36 @@ NAME
     INI-like files.
 
 VERSION
-    This document refers to version 0.0.2 of SQL::Library.
+    This document refers to version 0.0.4 (unreleased) of SQL::Library.
 
 SYNOPSIS
-      use SQL::Library ;
+      use SQL::Library;
     
-      my $sql   = new SQL::Library { lib => 'sql.lib' } ;
-                              # or { lib => [ <FH> ] } ;
-                              # or { lib => [ $string ] } ;
+      my $sql = new SQL::Library { lib => 'sql.lib' };
+                            # or { lib => [ <FH> ] };
+                            # or { lib => [ $string ] };
 
       ## Ask for a library entry by name...
-      my $query = $sql->retr( 'some_sql_query' ) ;
+      my $query = $sql->retr( 'some_sql_query' );
 
       ## Add or update an entry...
-      $sql->set( 'yet_another_query', <<'END' ) ;
+      $sql->set( 'yet_another_query', <<'END' );
       SELECT foo
       FROM   bar
       WHERE  zoot = 1
       END
 
       ## Remove an entry from the library...
-      $sql->drop( 'one_more_query' ) ;
+      $sql->drop( 'one_more_query' );
 
       ## List the entries in the library...
-      print join( ' : ', $sql->elements ), "\n" ;
+      print join( ' : ', $sql->elements ), "\n";
 
       ## Dump the contents of the library to a string...
-      my $lib_str = $sql->dump ;
+      my $lib_str = $sql->dump;
 
       ## Write the library to disk...
-      $sql->write ;
+      $sql->write;
 
 LIBRARY FILE FORMAT
     The format for the library files looks a little like an INI file.
@@ -87,16 +87,19 @@ OBJECT METHODS
     $OBJ->write
         Writes the library to the file named in "lib".
 
-AUTHOR
-    Doug Gorley <douggorley@shaw.ca>
-
 BUGS
     *   write() should write to a string, if it was so called.
 
 TO-DO
     *   Complete test suite
 
-COPYRIGHT
+AUTHOR
+    Doug Gorley <douggorley@shaw.ca>
+
+CO-MAINTAINER
+    Chris Vertonghen <chris@vertonghen.org> (post-0.0.3)
+
+COPYRIGHT & LICENSE
     Copyright (C) 2004 by Doug Gorley.
 
     This library is free software; you can redistribute it and/or modify it

@@ -3,7 +3,110 @@ package SQL::Library;
 use strict;
 use warnings;
 
-our $VERSION = 0.0.3;
+our $VERSION = 0.0.4;
+
+sub new
+{
+    my $proto = shift; 
+    my $options = shift;
+    my $self = {
+                 'options'  => $options,
+                 'contents' => undef
+               };
+
+    my $curr_name = '';
+
+    my @lib_arr = ();
+    if ( ref $self->{'options'}->{'lib'} eq 'ARRAY' )
+    {
+        # Could be a filehandle or a string.
+        if ( @{ $self->{'options'}->{'lib'} } == 1 )
+        {
+            @lib_arr = split /(?<=\n)/, $self->{'options'}->{'lib'}->[0];
+        }
+        else
+        {
+            @lib_arr = @{ $self->{'options'}->{'lib'} };
+        }
+    }
+    else
+    {
+        open LIB, $self->{'options'}->{'lib'}
+          or die "Cannot open $self->{'options'}->{'lib'}: $!";
+        @lib_arr = <LIB>;
+        close LIB;
+    }
+
+    foreach ( @lib_arr )
+    {
+        next if m{^\s*$};
+        next if m{^\s*#};
+        next if m{^\s*//};
+        if ( m{^\[([^\]]+)\]} )
+        {
+            $curr_name = $1;
+            next;
+        }
+        if ( $curr_name )
+        {
+            $self->{'contents'}->{$curr_name} .= $_;
+        }
+    }
+
+    bless $self, $proto;
+    return $self;
+}
+
+sub retr
+{
+    my ( $self, $entity_name ) = @_;
+    return $self->{'contents'}->{$entity_name};
+}
+
+sub set
+{
+    my ( $self, $entity_name, $entity ) = @_;
+    $self->{'contents'}->{$entity_name} = $entity;
+    return $self;
+}
+
+sub drop
+{
+    my ( $self, $entity_name ) = @_;
+    delete $self->{'contents'}->{$entity_name};
+    return $self;
+}
+
+sub elements
+{
+    my $self = shift;
+    return sort keys %{$self->{'contents'}};
+}
+
+sub dump
+{
+    my $self   = shift;
+    my $output = '';
+    foreach ( sort keys %{$self->{'contents'}} )
+    {
+        $output .= sprintf "[%s]\n%s\n", $_, $self->{'contents'}->{$_};
+    }
+    return $output;
+}
+
+sub write
+{
+    my $self = shift;
+    open OUT, ">$self->{'options'}->{'lib'}"
+      or die "Cannot open $self->{'options'}->{'lib'}: $!";
+    print OUT $self->dump;
+    close OUT;
+}
+
+1 ;
+__END__
+
+=pod
 
 =head1 NAME
 
@@ -12,7 +115,7 @@ stored in INI-like files.
 
 =head1 VERSION
 
-This document refers to version 0.0.3 of SQL::Library.
+This document refers to version 0.0.4 (unreleased) of SQL::Library.
 
 =head1 SYNOPSIS
 
@@ -82,149 +185,33 @@ Create a new library handle.  Currently, the only argument supported in
 the hashref is C<lib>, which refers to the file containing the SQL
 library.
 
-=cut
-
-sub new
-{
-    my $proto = shift; 
-    my $options = shift;
-    my $self = {
-                 'options'  => $options,
-                 'contents' => undef
-               };
-
-    my $curr_name = '';
-
-    my @lib_arr = ();
-    if ( ref $self->{'options'}->{'lib'} eq 'ARRAY' )
-    {
-        # Could be a filehandle or a string.
-        if ( @{ $self->{'options'}->{'lib'} } == 1 )
-        {
-            @lib_arr = split /(?<=\n)/, $self->{'options'}->{'lib'}->[0];
-        }
-        else
-        {
-            @lib_arr = @{ $self->{'options'}->{'lib'} };
-        }
-    }
-    else
-    {
-        open LIB, $self->{'options'}->{'lib'}
-          or die "Cannot open $self->{'options'}->{'lib'}: $!";
-        @lib_arr = <LIB>;
-        close LIB;
-    }
-
-    foreach ( @lib_arr )
-    {
-        next if m{^\s*$};
-        next if m{^\s*#};
-        next if m{^\s*//};
-        if ( m{^\[([^\]]+)\]} )
-        {
-            $curr_name = $1;
-            next;
-        }
-        if ( $curr_name )
-        {
-            $self->{'contents'}->{$curr_name} .= $_;
-        }
-    }
-
-    bless $self, $proto;
-    return $self;
-}
-
 =item $OBJ-E<gt>retr( NAME )
 
 Returns the library entry referenced by NAME.
-
-=cut 
-
-sub retr
-{
-    my ( $self, $entity_name ) = @_;
-    return $self->{'contents'}->{$entity_name};
-}
 
 =item $OBJ-E<gt>set( NAME, VALUE )
 
 Sets the library entry NAME to VALUE.  This is used both to create new
 library entries and to update existing ones.
 
-=cut
-
-sub set
-{
-    my ( $self, $entity_name, $entity ) = @_;
-    $self->{'contents'}->{$entity_name} = $entity;
-    return $self;
-}
-
 =item $OBJ-E<gt>drop( NAME )
 
 Drops entry NAME form the library.
 
-=cut
-
-sub drop
-{
-    my ( $self, $entity_name ) = @_;
-    delete $self->{'contents'}->{$entity_name};
-    return $self;
-}
-
 =item $OBJ-E<gt>elements
 
 Returns a list of all entry names in the library.
-
-=cut 
-
-sub elements
-{
-    my $self = shift;
-    return sort keys %{$self->{'contents'}};
-}
 
 =item $OBJ-E<gt>dump
 
 Returns a string containing the library contents in the same
 INI format that the module reads from.
 
-=cut 
-
-sub dump
-{
-    my $self   = shift;
-    my $output = '';
-    foreach ( sort keys %{$self->{'contents'}} )
-    {
-        $output .= sprintf "[%s]\n%s\n", $_, $self->{'contents'}->{$_};
-    }
-    return $output;
-}
-
 =item $OBJ-E<gt>write
 
 Writes the library to the file named in C<lib>.
 
-=cut
-
-sub write
-{
-    my $self = shift;
-    open OUT, ">$self->{'options'}->{'lib'}"
-      or die "Cannot open $self->{'options'}->{'lib'}: $!";
-    print OUT $self->dump;
-    close OUT;
-}
-
 =back
-
-=head1 AUTHOR
-
-Doug Gorley E<lt>douggorley@shaw.caE<gt>
 
 =head1 BUGS
 
@@ -246,7 +233,15 @@ Complete test suite
 
 =back
 
-=head1 COPYRIGHT
+=head1 AUTHOR
+
+Doug Gorley E<lt>douggorley@shaw.caE<gt>
+
+=head1 CO-MAINTAINER
+
+Chris Vertonghen E<lt>chris@vertonghen.orgE<gt> (post-0.0.3)
+
+=head1 COPYRIGHT & LICENSE
 
 Copyright (C) 2004 by Doug Gorley.
 
@@ -255,8 +250,3 @@ it under the same terms as Perl itself, either Perl version 5.8.2 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-1 ;
-
-__END__
-

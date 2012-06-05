@@ -3,7 +3,7 @@ NAME
     INI-like files.
 
 VERSION
-    This document refers to version 0.0.4 of SQL::Library.
+    This document refers to version 0.0.5 of SQL::Library.
 
 SYNOPSIS
       use SQL::Library;
